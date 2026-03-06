@@ -1023,7 +1023,136 @@
     text-transform: uppercase;
   }
 
-  /* SCROLLBAR */
+  /* API KEY GATE */
+  .apikey-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .apikey-overlay.hidden { display: none; }
+
+  .apikey-box {
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .apikey-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 3px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .apikey-logo span { color: var(--accent); }
+
+  .apikey-subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: -12px;
+  }
+
+  .apikey-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    border-left: 3px solid var(--accent);
+    padding-left: 14px;
+    margin: 4px 0;
+  }
+
+  .apikey-field-wrap {
+    display: flex;
+    width: 100%;
+    border: 2px solid var(--ink);
+  }
+
+  .apikey-input {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 14px 16px;
+    border: none;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    letter-spacing: 1px;
+  }
+  .apikey-input::placeholder { color: var(--muted); letter-spacing: 0; }
+
+  .apikey-toggle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 0 14px;
+    background: var(--cream);
+    border: none;
+    border-left: 2px solid var(--ink);
+    cursor: pointer;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .apikey-toggle:hover { background: var(--ink); color: var(--paper); }
+
+  .apikey-error {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    min-height: 16px;
+  }
+
+  .apikey-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    width: 100%;
+  }
+  .apikey-btn:hover { background: var(--ink); }
+
+  .apikey-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .apikey-link:hover { color: var(--ink); }
+
+  .change-key-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: 1px solid rgba(245,240,232,0.25);
+    color: rgba(245,240,232,0.5);
+    padding: 5px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .change-key-btn:hover { border-color: rgba(245,240,232,0.6); color: rgba(245,240,232,0.9); }
+
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); }
@@ -1097,12 +1226,29 @@
         </div>
       </div>
     </div>
+    <button class="change-key-btn" onclick="changeApiKey()">⚿ API KEY</button>
     <div class="likes-counter" id="likesCounter" onclick="showLikesModal()">♥ 0 LIKED</div>
     <button class="export-btn" onclick="showExport()">EXPORT SESSION</button>
   </div>
 </header>
 
-<div class="app">
+<!-- API KEY GATE -->
+<div class="apikey-overlay" id="apikeyOverlay">
+  <div class="apikey-box">
+    <div class="apikey-logo">YES<span>,</span> AND</div>
+    <div class="apikey-subtitle">Creative Ideation Partner</div>
+    <p class="apikey-desc">To use this tool, you need an Anthropic API key. Your key is stored only in your browser and never sent anywhere except directly to Anthropic.</p>
+    <div class="apikey-field-wrap">
+      <input type="password" id="apikeyInput" class="apikey-input" placeholder="sk-ant-..." autocomplete="off" />
+      <button class="apikey-toggle" onclick="toggleKeyVisibility()" id="apikeyToggle">SHOW</button>
+    </div>
+    <div class="apikey-error" id="apikeyError"></div>
+    <button class="apikey-btn" onclick="submitApiKey()">START CREATING →</button>
+    <a class="apikey-link" href="https://console.anthropic.com/settings/keys" target="_blank">Get an API key from Anthropic →</a>
+  </div>
+</div>
+
+<div class="app" id="mainApp">
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-section">
@@ -1274,6 +1420,7 @@
 
 <script>
 const API_URL = "https://api.anthropic.com/v1/messages";
+let apiKey = localStorage.getItem('yesand_apikey') || '';
 let currentMode = "yes-and";
 let currentModel = "claude-sonnet-4-6";
 let brief = "";
@@ -1489,6 +1636,49 @@ document.addEventListener('click', (e) => {
     document.querySelector('.model-trigger')?.classList.remove('open');
   }
 });
+
+function submitApiKey() {
+  const val = document.getElementById('apikeyInput').value.trim();
+  const err = document.getElementById('apikeyError');
+  if (!val.startsWith('sk-ant-')) {
+    err.textContent = 'Key should start with sk-ant- — double check and try again.';
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem('yesand_apikey', apiKey);
+  document.getElementById('apikeyOverlay').classList.add('hidden');
+  err.textContent = '';
+}
+
+function toggleKeyVisibility() {
+  const input = document.getElementById('apikeyInput');
+  const btn = document.getElementById('apikeyToggle');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'HIDE';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'SHOW';
+  }
+}
+
+function changeApiKey() {
+  document.getElementById('apikeyInput').value = '';
+  document.getElementById('apikeyError').textContent = '';
+  document.getElementById('apikeyOverlay').classList.remove('hidden');
+}
+
+// Allow Enter key to submit
+document.getElementById('apikeyInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitApiKey();
+});
+
+// Show gate if no key saved
+if (!apiKey) {
+  document.getElementById('apikeyOverlay').classList.remove('hidden');
+} else {
+  document.getElementById('apikeyOverlay').classList.add('hidden');
+}
 
 function syncDropdownToMode(mode) {
   document.getElementById('modeDropdownIcon').textContent = modeIcons[mode] || '✦';
@@ -1722,7 +1912,12 @@ async function sendMessage(overrideText, overrideMode) {
   try {
     const resp = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: currentModel,
         max_tokens: 1000,
