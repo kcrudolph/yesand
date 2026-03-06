@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YES, AND — Creative Ideation Partner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0e0d0b;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --accent: #e8401c;
+    --accent2: #2563c4;
+    --muted: #8a8378;
+    --like: #e8401c;
+    --border: rgba(14,13,11,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: var(--ink);
+    color: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--paper);
+  }
+  .logo span { color: var(--accent); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .likes-counter {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border: 1px solid #333;
+    transition: all 0.2s;
+  }
+  .likes-counter:hover { border-color: var(--accent); color: var(--accent); }
+
+  .export-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .export-btn:hover { opacity: 0.85; }
+
+  /* MODEL SWITCHER */
+  .model-switcher {
+    position: relative;
+  }
+
+  .model-trigger {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: 1px solid rgba(245,240,232,0.25);
+    color: rgba(245,240,232,0.8);
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .model-trigger:hover, .model-trigger.open {
+    border-color: rgba(245,240,232,0.6);
+    color: white;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .model-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px #4ade80;
+  }
+
+  .model-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    min-width: 260px;
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    box-shadow: 4px 4px 0px rgba(14,13,11,0.2);
+  }
+  .model-menu.open { display: flex; }
+
+  .model-menu-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 14px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .model-option {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.12s;
+  }
+  .model-option:last-child { border-bottom: none; }
+  .model-option:hover { background: var(--cream); }
+  .model-option.active { background: var(--ink); }
+
+  .model-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+  }
+  .model-option.active .model-name { color: var(--paper); }
+
+  .model-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .model-option.active .model-desc { color: rgba(245,240,232,0.6); }
+  .model-option:not(.active):hover .model-name { color: var(--ink); }
+
+  /* MAIN LAYOUT */
+  .app {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 56px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 520px;
+    border-right: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    background: var(--cream);
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .sidebar-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .mode-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .mode-btn:hover {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .mode-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .mode-btn .mode-icon { font-size: 14px; display: block; margin-bottom: 3px; }
+  .mode-btn .mode-desc {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0;
+    opacity: 0.6;
+    margin-top: 4px;
+    line-height: 1.4;
+    font-weight: normal;
+    text-transform: none;
+  }
+  .mode-btn.active .mode-desc { opacity: 0.75; }
+
+  .dial-display {
+    margin-bottom: 10px;
+  }
+
+  .dial-track {
+    position: relative;
+    height: 6px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    overflow: visible;
+  }
+
+  .dial-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 40%;
+    background: var(--ink);
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dial-pip {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    left: 40%;
+    transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s, border-color 0.3s;
+    z-index: 2;
+  }
+
+  .dial-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .dial-value-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .dial-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1;
+    transition: color 0.3s;
+  }
+
+  .dial-value-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .dial-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0;
+    padding: 0 1px;
+  }
+
+  .dial-ticks span {
+    width: 10%;
+    text-align: center;
+    transition: color 0.2s, font-weight 0.2s;
+  }
+
+  .dial-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dial-btn {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 8px 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--ink);
+  }
+
+  .dial-btn.weirder:hover { background: #7c3aed; border-color: #7c3aed; color: white; }
+  .dial-btn.simpler:hover { background: var(--accent2); border-color: var(--accent2); color: white; }
+  .dial-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* BRIEF INPUT */
+  .brief-area {
+    padding: 16px;
+  }
+
+  .brief-input {
+    width: 100%;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 10px;
+    resize: none;
+    height: 80px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .brief-input:focus { border-color: var(--ink); }
+  .brief-input::placeholder { color: var(--muted); }
+
+  .brief-save {
+    margin-top: 6px;
+    width: 100%;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 7px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .brief-save:hover { opacity: 0.8; }
+
+  /* BRIEF TABS */
+  .brief-tabs {
+    display: flex;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .brief-tab {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 6px 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .brief-tab.active { background: var(--ink); color: var(--paper); }
+  .brief-tab:not(.active):hover { background: var(--cream); color: var(--ink); }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 1px dashed var(--border);
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: #fff5f3;
+  }
+  .upload-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  .upload-text {
+    font-size: 11px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  .uploaded-files-list {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .uploaded-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: white;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .uploaded-file-item.loading {
+    opacity: 0.6;
+  }
+
+  .uploaded-file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .uploaded-file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+  }
+
+  .uploaded-file-meta {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .uploaded-file-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    flex-shrink: 0;
+    padding: 2px 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .uploaded-file-remove:hover { color: var(--accent); }
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 10px;
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    max-height: 80px;
+    overflow-y: auto;
+  }
+
+  .brief-confirm {
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 8px 10px;
+    background: #d1fae5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  .brief-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #065f46;
+    flex-shrink: 0;
+    padding: 2px;
+  }
+  .brief-clear:hover { color: var(--accent); }
+
+  /* LIKED IDEAS PANEL */
+  .liked-panel {
+    flex: 1;
+    padding: 16px;
+  }
+
+  .liked-item {
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 8px;
+    border-left: 2px solid var(--accent);
+    margin-bottom: 8px;
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .liked-item:hover { background: var(--ink); color: var(--paper); }
+
+  .liked-empty {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* MAIN CHAT AREA */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* WELCOME STATE */
+  .welcome {
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .welcome h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    line-height: 1.0;
+    margin-bottom: 12px;
+  }
+  .welcome h1 em { font-style: italic; color: var(--accent); }
+
+  .welcome p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .starter-prompts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: left;
+  }
+
+  .starter {
+    padding: 14px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: white;
+  }
+  .starter:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+  .starter strong { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; opacity: 0.6; }
+
+  /* MESSAGE BUBBLES */
+  .message {
+    display: flex;
+    flex-direction: column;
+    max-width: 820px;
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  .message.user {
+    align-self: flex-end;
+    align-items: flex-end;
+  }
+
+  .message.ai {
+    align-self: flex-start;
+    align-items: flex-start;
+  }
+
+  .msg-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .msg-bubble {
+    padding: 20px 24px;
+    max-width: 100%;
+    line-height: 1.75;
+    font-size: 13px;
+    position: relative;
+  }
+
+  .message.user .msg-bubble {
+    background: var(--ink);
+    color: var(--paper);
+    font-style: italic;
+  }
+
+  .message.ai .msg-bubble {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+
+  .message.ai .msg-bubble.pressure { border-left-color: #dc2626; }
+  .message.ai .msg-bubble.steal { border-left-color: #059669; }
+  .message.ai .msg-bubble.kill { border-left-color: #7c3aed; }
+  .message.ai .msg-bubble.opposite { border-left-color: #d97706; }
+  .message.ai .msg-bubble.never { border-left-color: #0891b2; }
+  .message.ai .msg-bubble.burst { border-left-color: #db2777; }
+  .message.ai .msg-bubble.metaphor { border-left-color: #65a30d; }
+  .message.ai .msg-bubble.zoomout { border-left-color: #6366f1; }
+  .message.ai .msg-bubble.switchup { border-left-color: #f59e0b; }
+
+  .msg-bubble p { margin-bottom: 12px; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+
+  .forks {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fork {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--cream);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .fork:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .fork-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: -1px;
+  }
+  .fork:hover .fork-letter { color: var(--paper); }
+
+  .msg-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .like-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .like-btn:hover, .like-btn.liked { background: var(--like); border-color: var(--like); color: white; }
+
+  /* MODE TAG RERUN DROPDOWN */
+  .mode-tag-wrap {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+  }
+
+  .mode-tag {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 8px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .mode-tag-btn {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px 3px 10px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    transition: background 0.15s;
+    border: none;
+  }
+  .mode-tag-btn:hover, .mode-tag-btn.open {
+    background: var(--accent);
+    color: white;
+  }
+  .mode-tag-btn .caret {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .rerun-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--ink);
+    border: 2px solid rgba(255,255,255,0.15);
+    min-width: 230px;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+  }
+  .rerun-menu.open { display: flex; }
+  .rerun-menu-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(245,240,232,0.4);
+    padding: 8px 14px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-transform: uppercase;
+  }
+
+  .rerun-option {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    color: rgba(245,240,232,0.75);
+    cursor: pointer;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.1s;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .rerun-option:last-child { border-bottom: none; }
+  .rerun-option:hover { background: var(--accent); color: white; }
+  .rerun-option.current {
+    color: rgba(245,240,232,0.3);
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    border-top: 2px solid var(--ink);
+    padding: 16px 32px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: var(--cream);
+  }
+
+  .input-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+    flex-shrink: 0;
+  }
+
+  .mode-dropdown-wrap {
+    position: relative;
+  }
+
+  .mode-dropdown-trigger {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    color: var(--ink);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .mode-dropdown-trigger:hover { border-color: var(--ink); background: white; }
+  .mode-dropdown-trigger.open { border-color: var(--ink); background: white; }
+
+  .dropdown-caret {
+    margin-left: auto;
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  .mode-dropdown-menu {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    min-width: 220px;
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    box-shadow: 4px 4px 0px rgba(14,13,11,0.2);
+  }
+  .mode-dropdown-menu.open { display: flex; }
+
+  .mode-dropdown-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 10px 14px;
+    color: rgba(245,240,232,0.7);
+    cursor: pointer;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.1s;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .mode-dropdown-item:last-child { border-bottom: none; }
+  .mode-dropdown-item:hover { background: var(--accent); color: white; }
+  .mode-dropdown-item.active { color: white; background: rgba(255,255,255,0.1); }
+
+  .input-wrap { flex: 1; position: relative; }
+
+  .main-input {
+    width: 100%;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    background: white;
+    border: 2px solid var(--ink);
+    padding: 14px 16px;
+    outline: none;
+    resize: none;
+    color: var(--ink);
+    line-height: 1.5;
+    min-height: 54px;
+    max-height: 160px;
+  }
+  .main-input::placeholder { color: var(--muted); font-style: italic; }
+  .main-input:focus { border-color: var(--accent); }
+
+  .send-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    align-self: stretch;
+  }
+  .send-btn:hover { background: var(--ink); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* TYPING INDICATOR */
+  .typing {
+    display: flex;
+    gap: 5px;
+    padding: 20px 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    width: fit-content;
+    align-items: center;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.2s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14,13,11,0.8);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    width: 640px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 32px;
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-close {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .export-content {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    background: var(--cream);
+    padding: 20px;
+    border: 1px solid var(--border);
+    max-height: 400px;
+    overflow-y: auto;
+    color: var(--ink);
+  }
+
+  .copy-export {
+    margin-top: 16px;
+    width: 100%;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0.01; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  .quantity-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .quantity-item {
+    font-size: 11px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    background: var(--cream);
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .quantity-item:hover { background: var(--ink); color: var(--paper); }
+  .quantity-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .quantity-item:hover .quantity-num { color: var(--paper); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">YES<span>,</span> AND</div>
+  <div class="header-right">
+    <div class="model-switcher" id="modelSwitcher">
+      <button class="model-trigger" onclick="toggleModelMenu()">
+        <span class="model-dot"></span>
+        <span id="modelLabel">CLAUDE SONNET 4.6</span>
+        <span class="dropdown-caret">▾</span>
+      </button>
+      <div class="model-menu" id="modelMenu">
+        <div class="model-menu-label">SELECT MODEL</div>
+        <div class="model-option active" data-model="claude-sonnet-4-6" onclick="selectModel(this)">
+          <div class="model-name">Claude Sonnet 4.6</div>
+          <div class="model-desc">Fast · Smart · Everyday use</div>
+        </div>
+        <div class="model-option" data-model="claude-opus-4-6" onclick="selectModel(this)">
+          <div class="model-name">Claude Opus 4.6</div>
+          <div class="model-desc">Most powerful · Deep reasoning</div>
+        </div>
+        <div class="model-option" data-model="claude-sonnet-4-5" onclick="selectModel(this)">
+          <div class="model-name">Claude Sonnet 4.5</div>
+          <div class="model-desc">Previous generation · Reliable</div>
+        </div>
+        <div class="model-option" data-model="claude-haiku-4-5-20251001" onclick="selectModel(this)">
+          <div class="model-name">Claude Haiku 4.5</div>
+          <div class="model-desc">Fastest · Lightweight tasks</div>
+        </div>
+      </div>
+    </div>
+    <div class="likes-counter" id="likesCounter" onclick="showLikesModal()">♥ 0 LIKED</div>
+    <button class="export-btn" onclick="showExport()">EXPORT SESSION</button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Brief / Context</div>
+      <div class="brief-tabs">
+        <button class="brief-tab active" onclick="switchBriefTab('type', this)">TYPE</button>
+        <button class="brief-tab" onclick="switchBriefTab('upload', this)">UPLOAD</button>
+      </div>
+
+      <!-- TYPE TAB -->
+      <div id="briefTypeTab">
+        <textarea class="brief-input" id="briefInput" placeholder="Paste your brief here so the AI always has context..."></textarea>
+        <button class="brief-save" onclick="saveBrief()">SAVE BRIEF</button>
+      </div>
+
+      <!-- UPLOAD TAB -->
+      <div id="briefUploadTab" style="display:none">
+        <div class="upload-zone" id="uploadZone"
+          onclick="document.getElementById('briefFile').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <div class="upload-icon">↑</div>
+          <div class="upload-text">DROP FILES OR CLICK TO BROWSE<br>.PDF · .DOCX · .TXT — ADD AS MANY AS YOU NEED</div>
+          <input type="file" id="briefFile" accept=".pdf,.doc,.docx,.txt" style="display:none" multiple onchange="handleFileSelect(event)">
+        </div>
+        <div id="uploadedFilesList" class="uploaded-files-list"></div>
+        <div id="uploadProgress" class="upload-status" style="display:none"></div>
+        <button class="brief-save" id="uploadSaveBtn" style="display:none" onclick="saveUploadedBrief()">USE THESE DOCS AS BRIEF</button>
+      </div>
+
+      <div id="briefConfirm" class="brief-confirm" style="display:none">
+        <span id="briefConfirmText"></span>
+        <button onclick="clearBrief()" class="brief-clear">✕</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mode</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" data-mode="yes-and" onclick="setMode(this)">
+          <span class="mode-icon">✦</span>YES, AND
+          <span class="mode-desc">Builds on your idea and forks it into 3 directions.</span>
+        </button>
+        <button class="mode-btn" data-mode="pressure" onclick="setMode(this)">
+          <span class="mode-icon">🔥</span>PRESSURE TEST
+          <span class="mode-desc">Finds the real weaknesses before your client does.</span>
+        </button>
+        <button class="mode-btn" data-mode="zoomout" onclick="setMode(this)">
+          <span class="mode-icon">🔭</span>ZOOM OUT
+          <span class="mode-desc">Reveals the bigger human truth hiding under your idea.</span>
+        </button>
+        <button class="mode-btn" data-mode="steal" onclick="setMode(this)">
+          <span class="mode-icon">🏭</span>STEAL FROM INDUSTRY
+          <span class="mode-desc">Borrows how other industries would solve your problem.</span>
+        </button>
+        <button class="mode-btn" data-mode="kill" onclick="setMode(this)">
+          <span class="mode-icon">🗡️</span>KILL YOUR DARLINGS
+          <span class="mode-desc">Argues brutally against your idea so you're forced to defend it.</span>
+        </button>
+        <button class="mode-btn" data-mode="opposite" onclick="setMode(this)">
+          <span class="mode-icon">🔄</span>OPPOSITE DAY
+          <span class="mode-desc">Flips every assumption to find what's accidentally brilliant.</span>
+        </button>
+        <button class="mode-btn" data-mode="never" onclick="setMode(this)">
+          <span class="mode-icon">🚫</span>BRAND NEVER
+          <span class="mode-desc">Explores what the brand would "never" do — then finds the one that works.</span>
+        </button>
+        <button class="mode-btn" data-mode="burst" onclick="setMode(this)">
+          <span class="mode-icon">⚡</span>QUANTITY BURST
+          <span class="mode-desc">Fires 15 raw ideas fast — volume over polish to surface the gem.</span>
+        </button>
+        <button class="mode-btn" data-mode="metaphor" onclick="setMode(this)">
+          <span class="mode-icon">🌀</span>METAPHOR FINDER
+          <span class="mode-desc">Finds unexpected analogies that unlock the real creative territory.</span>
+        </button>
+        <button class="mode-btn" data-mode="switchup" onclick="setMode(this)">
+          <span class="mode-icon">📺</span>SWITCH IT UP
+          <span class="mode-desc">Shows how your idea would live across 5 different mediums.</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Creativity Dial</div>
+      <div class="dial-display">
+        <div class="dial-track">
+          <div class="dial-fill" id="dialFill"></div>
+          <div class="dial-pip" id="dialPip"></div>
+        </div>
+        <div class="dial-labels">
+          <span>SIMPLE</span>
+          <div class="dial-value-wrap">
+            <span class="dial-value" id="dialValue">5</span>
+            <span class="dial-value-label" id="dialLabel">NORMAL</span>
+          </div>
+          <span>WEIRD</span>
+        </div>
+        <div class="dial-ticks">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+          <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+        </div>
+      </div>
+      <div class="dial-row">
+        <button class="dial-btn simpler" onclick="applyDial('simpler')">⬇ SIMPLER</button>
+        <button class="dial-btn weirder" onclick="applyDial('weirder')">⬆ WEIRDER</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1; display:flex; flex-direction:column;">
+      <div class="sidebar-label">♥ Liked Ideas</div>
+      <div class="liked-panel" id="likedPanel">
+        <div class="liked-empty">Ideas you ♥ will appear here for quick reference.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <h1>Throw us<br>your <em>half-baked</em><br>idea.</h1>
+        <p>We'll say yes — and push it somewhere unexpected.<br>Pick a mode, set a brief, and start ideating.</p>
+        <div class="starter-prompts" id="starterPrompts"></div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea class="main-input" id="mainInput" placeholder="Type your idea, concept, or territory…" rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <div class="input-controls">
+        <div class="mode-dropdown-wrap" id="modeDropdownWrap">
+          <button class="mode-dropdown-trigger" id="modeDropdownTrigger" onclick="toggleModeDropdown()">
+            <span id="modeDropdownIcon">✦</span>
+            <span id="modeDropdownLabel">YES, AND</span>
+            <span class="dropdown-caret">▾</span>
+          </button>
+          <div class="mode-dropdown-menu" id="modeDropdownMenu">
+            <div class="mode-dropdown-item active" data-mode="yes-and" onclick="selectModeDropdown(this)"><span>✦</span> YES, AND</div>
+            <div class="mode-dropdown-item" data-mode="pressure" onclick="selectModeDropdown(this)"><span>🔥</span> PRESSURE TEST</div>
+            <div class="mode-dropdown-item" data-mode="zoomout" onclick="selectModeDropdown(this)"><span>🔭</span> ZOOM OUT</div>
+            <div class="mode-dropdown-item" data-mode="steal" onclick="selectModeDropdown(this)"><span>🏭</span> STEAL FROM INDUSTRY</div>
+            <div class="mode-dropdown-item" data-mode="kill" onclick="selectModeDropdown(this)"><span>🗡️</span> KILL YOUR DARLINGS</div>
+            <div class="mode-dropdown-item" data-mode="opposite" onclick="selectModeDropdown(this)"><span>🔄</span> OPPOSITE DAY</div>
+            <div class="mode-dropdown-item" data-mode="never" onclick="selectModeDropdown(this)"><span>🚫</span> BRAND NEVER</div>
+            <div class="mode-dropdown-item" data-mode="burst" onclick="selectModeDropdown(this)"><span>⚡</span> QUANTITY BURST</div>
+            <div class="mode-dropdown-item" data-mode="metaphor" onclick="selectModeDropdown(this)"><span>🌀</span> METAPHOR FINDER</div>
+            <div class="mode-dropdown-item" data-mode="switchup" onclick="selectModeDropdown(this)"><span>📺</span> SWITCH IT UP</div>
+          </div>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">YES, AND →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title">
+      <span id="modalTitle">SESSION EXPORT</span>
+      <button class="modal-close" onclick="closeModal()">CLOSE</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://api.anthropic.com/v1/messages";
+let currentMode = "yes-and";
+let currentModel = "claude-sonnet-4-6";
+let brief = "";
+let likedIdeas = [];
+let sessionMessages = [];
+let messageCount = 0;
+let dialLevel = 5;
+
+const dialLevelLabels = {
+  1: 'STRIPPED', 2: 'CLEAN', 3: 'FOCUSED', 4: 'GROUNDED',
+  5: 'NORMAL', 6: 'ELEVATED', 7: 'BOLD', 8: 'WILD', 9: 'UNHINGED', 10: 'CHAOS'
+};
+
+const dialLevelColors = {
+  1: '#2563c4', 2: '#2563c4', 3: '#2563c4', 4: '#8a8378',
+  5: '#0e0d0b',
+  6: '#7c3aed', 7: '#7c3aed', 8: '#e8401c', 9: '#e8401c', 10: '#e8401c'
+};
+
+function updateDialUI() {
+  const pct = ((dialLevel - 1) / 9) * 100;
+  document.getElementById('dialFill').style.width = pct + '%';
+  document.getElementById('dialPip').style.left = pct + '%';
+  document.getElementById('dialValue').textContent = dialLevel;
+  document.getElementById('dialValue').style.color = dialLevelColors[dialLevel];
+  document.getElementById('dialLabel').textContent = dialLevelLabels[dialLevel];
+  document.getElementById('dialLabel').style.color = dialLevelColors[dialLevel];
+  document.getElementById('dialPip').style.borderColor = dialLevelColors[dialLevel];
+
+  // Highlight active tick
+  document.querySelectorAll('.dial-ticks span').forEach((el, i) => {
+    const tickNum = i + 1;
+    el.style.color = tickNum === dialLevel ? dialLevelColors[dialLevel] : 'var(--muted)';
+    el.style.fontWeight = tickNum === dialLevel ? 'bold' : 'normal';
+  });
+
+  // Disable buttons at limits
+  document.querySelector('.dial-btn.simpler').disabled = dialLevel <= 1;
+  document.querySelector('.dial-btn.weirder').disabled = dialLevel >= 10;
+}
+
+function getDialInstruction() {
+  if (dialLevel <= 2) return `CREATIVITY LEVEL: ${dialLevel}/10 — Be extremely minimal and stripped back. Use simple language, conventional structures, and safe familiar ideas. Distill everything to the bare essential.`;
+  if (dialLevel <= 4) return `CREATIVITY LEVEL: ${dialLevel}/10 — Be grounded and focused. Ideas should be clear, practical, and easy to execute. Avoid experimental territory.`;
+  if (dialLevel === 5) return `CREATIVITY LEVEL: ${dialLevel}/10 — Normal baseline. Balanced creativity.`;
+  if (dialLevel <= 7) return `CREATIVITY LEVEL: ${dialLevel}/10 — Push beyond the obvious. Be bold, unexpected, and more adventurous than a typical response. Challenge conventional thinking.`;
+  if (dialLevel <= 9) return `CREATIVITY LEVEL: ${dialLevel}/10 — Go genuinely wild. Embrace the strange, the avant-garde, the absurd. The weirder the better. Surprise and delight.`;
+  return `CREATIVITY LEVEL: 10/10 — FULL CHAOS MODE. Be completely unhinged and experimental. Obliterate conventions. The most bizarre, unexpected, rule-breaking ideas possible. Nothing is too strange.`;
+}
+
+const modeLabels = {
+  "yes-and": "YES, AND",
+  "pressure": "PRESSURE TEST",
+  "zoomout": "ZOOM OUT",
+  "steal": "STEAL FROM INDUSTRY",
+  "kill": "KILL YOUR DARLINGS",
+  "opposite": "OPPOSITE DAY",
+  "never": "BRAND NEVER",
+  "burst": "QUANTITY BURST",
+  "metaphor": "METAPHOR FINDER",
+  "switchup": "SWITCH IT UP"
+};
+
+const modeColors = {
+  "yes-and": "", "pressure": "pressure", "zoomout": "zoomout",
+  "steal": "steal", "kill": "kill", "opposite": "opposite",
+  "never": "never", "burst": "burst", "metaphor": "metaphor", "switchup": "switchup"
+};
+
+const systemPrompts = {
+  "yes-and": `You are a brilliant creative partner at a top ad agency, trained in improv "Yes, And" thinking. Your job is to take any half-baked idea and build on it enthusiastically.
+
+ALWAYS respond in this structure:
+1. A "YES —" statement that accepts and amplifies the idea (2-3 sentences, energetic)
+2. "AND..." that develops it further with a surprising twist or detail
+3. THREE clearly labeled forks labeled A), B), C) — each taking the concept in a different direction
+
+Keep it punchy, creative, inspiring. No bullet points in the main response. Forks should each be 1-2 sentences, meaty and specific.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "pressure": `You are a brutally honest creative director stress-testing ideas before they get presented. Your job is to find the REAL weaknesses.
+
+Structure your response:
+1. Quickly acknowledge the strongest thing about the idea (1 sentence)
+2. Then go in: "BUT HERE'S THE PROBLEM:" — identify 2-3 real, specific vulnerabilities (not generic feedback)
+3. End with "THE FIX:" — one clear direction to make it bulletproof
+
+Be direct, specific, and constructive — not mean. You want the idea to survive.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "zoomout": `You are a strategic creative thinker who can see the bigger picture behind any idea.
+
+Your job is to zoom out and find what the idea is REALLY about — the deeper human truth, cultural tension, or brand philosophy underneath it.
+
+Structure:
+1. "THE SURFACE IDEA:" — describe what they've pitched in one line
+2. "BUT WHAT IT'S REALLY ABOUT:" — the deeper insight or human truth (the zoom out)
+3. "THE BIG IDEA UNDERNEATH:" — the platform-level thinking this could become
+4. One question they should be asking themselves
+
+Be philosophical but grounded. This should feel like an unlock.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "steal": `You are a creative strategist who steals ideas from other industries and reverse-engineers them for advertising.
+
+When given an idea or concept:
+1. "LET'S STEAL FROM:" — pick 3 completely different industries (e.g. hospitality, aerospace, street food) and show how each would execute this concept
+2. "THE REVERSE-ENGINEERED INSIGHT:" — what principle from those industries can we steal back for the brief?
+3. "THE HYBRID:" — the new idea that emerges from combining the original concept with the stolen approach
+
+Be specific about the industries. Make the connections surprising but logical.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "kill": `You are playing devil's advocate. Your job is to brutally argue why the submitted idea will NOT work — so the creator is forced to defend, evolve, or kill it.
+
+Structure:
+1. "THE IDEA IN ONE LINE:" — distill it ruthlessly
+2. "WHY IT WILL FAIL:" — 3 specific, real arguments against it (strategic, cultural, executional)
+3. "THE HARDER QUESTION:" — one question that, if they can't answer it, the idea should die
+4. "UNLESS..." — one condition under which this idea could actually work
+
+This is tough love. Be smart, not snarky.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "opposite": `You are a lateral thinking creative who finds brilliance by flipping every assumption.
+
+Take the submitted idea and:
+1. "THE ORIGINAL ASSUMPTION:" — state what the idea assumes (target, medium, tone, message, timing, etc.)
+2. "NOW FLIP EVERYTHING:" — systematically invert 3-4 core assumptions
+3. "WHAT'S ACCIDENTALLY BRILLIANT:" — identify which flipped version has the most unexpected creative potential
+4. Develop that one flipped version into a real concept (3-4 sentences)
+
+The goal is to find the version that's on-brand in disguise.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "never": `You are a brand strategist who knows that the most interesting creative territory is often what a brand would "never" do.
+
+Given a brand, product, or concept:
+1. "WHAT THIS BRAND WOULD NEVER DO:" — generate 5 things that feel totally off-limits
+2. "THE ONE THAT'S SECRETLY RIGHT:" — pick the most intriguing forbidden idea and explain why it's actually on-brand in a surprising way
+3. "HOW YOU'D SELL IT IN:" — a one-paragraph brief for why this "never" is actually a "yes"
+
+Push into uncomfortable territory. That's where the interesting work lives.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "burst": `You are a rapid-fire idea generator. No judgment, no filter — just volume.
+
+Given any concept, brief, or territory, generate exactly 15 raw ideas in under a burst. Format:
+
+"BURST — [TOPIC]"
+Then 15 numbered, one-to-two sentence ideas. Each one should take a different angle. Go fast. Some will be terrible. That's fine. The goal is to surface the one unexpected gem.
+
+After the list: "THE ONE TO CHASE:" — pick the single most interesting one and say one sentence about why.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "metaphor": `You are a conceptual thinker who finds the hidden metaphors in ideas — the unexpected analogies that unlock the real creative territory.
+
+Given an idea or concept:
+1. "THIS IS BASICALLY LIKE..." — generate 5 unexpected analogies from completely different domains (nature, architecture, cooking, sport, etc.)
+2. "THE ONE THAT UNLOCKS SOMETHING:" — pick the most revealing metaphor and explain what it surfaces about the idea
+3. "HOW TO MAKE THE METAPHOR THE WORK:" — one concrete direction where the metaphor becomes the actual creative execution
+
+Metaphors should be surprising, specific, and illuminating — not generic.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`,
+
+  "switchup": `You are a creative producer who can see how any idea would work across radically different contexts, settings, and mediums.
+
+Given an idea:
+1. "THE CORE IDEA:" — one line
+2. "NOW SWITCH IT UP —" show how this idea would work in 5 very different settings/mediums:
+   - As a physical/experiential activation
+   - As a long-form content piece
+   - As a social-native moment
+   - As an out-of-home installation
+   - As a product or service feature
+3. "THE UNEXPECTED WINNER:" — which execution creates the most interesting brand story and why?
+
+Each execution should feel native to its medium, not just a resize.${brief ? `\n\nBRIEF CONTEXT: ${brief}` : ""}`
+};
+
+const modeIcons = {
+  "yes-and": "✦", "pressure": "🔥", "zoomout": "🔭", "steal": "🏭",
+  "kill": "🗡️", "opposite": "🔄", "never": "🚫", "burst": "⚡",
+  "metaphor": "🌀", "switchup": "📺"
+};
+
+function setMode(btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMode = btn.dataset.mode;
+  syncDropdownToMode(currentMode);
+  document.getElementById('sendBtn').textContent = modeLabels[currentMode].toUpperCase() + ' →';
+}
+
+const modelNames = {
+  'claude-sonnet-4-6': 'CLAUDE SONNET 4.6',
+  'claude-opus-4-6': 'CLAUDE OPUS 4.6',
+  'claude-sonnet-4-5': 'CLAUDE SONNET 4.5',
+  'claude-haiku-4-5-20251001': 'CLAUDE HAIKU 4.5'
+};
+
+function toggleModelMenu() {
+  const menu = document.getElementById('modelMenu');
+  const trigger = document.querySelector('.model-trigger');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  trigger.classList.toggle('open', !isOpen);
+}
+
+function selectModel(el) {
+  currentModel = el.dataset.model;
+  document.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('modelLabel').textContent = modelNames[currentModel];
+  document.getElementById('modelMenu').classList.remove('open');
+  document.querySelector('.model-trigger').classList.remove('open');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.model-switcher')) {
+    document.getElementById('modelMenu')?.classList.remove('open');
+    document.querySelector('.model-trigger')?.classList.remove('open');
+  }
+});
+
+function syncDropdownToMode(mode) {
+  document.getElementById('modeDropdownIcon').textContent = modeIcons[mode] || '✦';
+  document.getElementById('modeDropdownLabel').textContent = modeLabels[mode] || mode;
+  document.querySelectorAll('.mode-dropdown-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.mode === mode);
+  });
+}
+
+function toggleModeDropdown() {
+  const menu = document.getElementById('modeDropdownMenu');
+  const trigger = document.getElementById('modeDropdownTrigger');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  trigger.classList.toggle('open', !isOpen);
+}
+
+function selectModeDropdown(el) {
+  const mode = el.dataset.mode;
+  currentMode = mode;
+  // Sync sidebar buttons
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  syncDropdownToMode(mode);
+  document.getElementById('sendBtn').textContent = modeLabels[mode].toUpperCase() + ' →';
+  // Close menu
+  document.getElementById('modeDropdownMenu').classList.remove('open');
+  document.getElementById('modeDropdownTrigger').classList.remove('open');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('modeDropdownWrap').contains(e.target)) {
+    document.getElementById('modeDropdownMenu').classList.remove('open');
+    document.getElementById('modeDropdownTrigger').classList.remove('open');
+  }
+});
+
+function switchBriefTab(tab, btn) {
+  document.querySelectorAll('.brief-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('briefTypeTab').style.display = tab === 'type' ? 'block' : 'none';
+  document.getElementById('briefUploadTab').style.display = tab === 'upload' ? 'block' : 'none';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.add('dragover');
+}
+function handleDragLeave(e) {
+  document.getElementById('uploadZone').classList.remove('dragover');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('dragover');
+  Array.from(e.dataTransfer.files).forEach(f => processFile(f));
+}
+function handleFileSelect(e) {
+  Array.from(e.target.files).forEach(f => processFile(f));
+  e.target.value = '';
+}
+
+let uploadedDocs = [];
+
+async function processFile(file) {
+  if (uploadedDocs.find(d => d.name === file.name)) return;
+  const id = 'doc-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  const progress = document.getElementById('uploadProgress');
+
+  uploadedDocs.push({ id, name: file.name, text: null, chars: 0 });
+  renderFileList();
+  progress.style.display = 'block';
+  progress.textContent = `Reading ${file.name}...`;
+
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    let text = '';
+
+    if (ext === 'txt') {
+      text = (await file.text()).trim();
+
+    } else if (ext === 'pdf') {
+      progress.textContent = `Loading PDF reader for ${file.name}...`;
+      await loadPdfJs();
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        fullText += content.items.map(item => item.str).join(' ') + '\n';
+      }
+      text = fullText.trim();
+
+    } else if (ext === 'docx') {
+      progress.textContent = `Loading document reader for ${file.name}...`;
+      await loadMammoth();
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      text = result.value.trim();
+
+    } else if (ext === 'doc') {
+      uploadedDocs = uploadedDocs.filter(d => d.id !== id);
+      progress.textContent = `⚠ ${file.name}: save as .docx or .txt first`;
+      renderFileList(); return;
+
+    } else {
+      uploadedDocs = uploadedDocs.filter(d => d.id !== id);
+      progress.textContent = `⚠ ${file.name}: unsupported type`;
+      renderFileList(); return;
+    }
+
+    const doc = uploadedDocs.find(d => d.id === id);
+    if (doc) { doc.text = text; doc.chars = text.length; }
+
+    progress.textContent = `✓ ${file.name} loaded`;
+    setTimeout(() => { if (progress.textContent.startsWith('✓')) progress.style.display = 'none'; }, 2000);
+    renderFileList();
+    updateSaveBtn();
+
+  } catch(err) {
+    uploadedDocs = uploadedDocs.filter(d => d.id !== id);
+    progress.textContent = `⚠ Could not read ${file.name}: ${err.message}`;
+    renderFileList();
+  }
+}
+
+function removeUploadedDoc(id) {
+  uploadedDocs = uploadedDocs.filter(d => d.id !== id);
+  renderFileList();
+  updateSaveBtn();
+  if (uploadedDocs.length === 0) document.getElementById('uploadProgress').style.display = 'none';
+}
+
+function renderFileList() {
+  const list = document.getElementById('uploadedFilesList');
+  if (!uploadedDocs.length) { list.innerHTML = ''; return; }
+  list.innerHTML = uploadedDocs.map(doc => `
+    <div class="uploaded-file-item ${doc.text === null ? 'loading' : ''}">
+      <div class="uploaded-file-info">
+        <div class="uploaded-file-name">${escapeHtml(doc.name)}</div>
+        <div class="uploaded-file-meta">${doc.text === null ? 'Reading...' : doc.chars.toLocaleString() + ' chars'}</div>
+      </div>
+      <button class="uploaded-file-remove" onclick="removeUploadedDoc('${doc.id}')" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateSaveBtn() {
+  const ready = uploadedDocs.filter(d => d.text !== null && d.text.length > 0);
+  const btn = document.getElementById('uploadSaveBtn');
+  btn.style.display = ready.length > 0 ? 'block' : 'none';
+  btn.textContent = ready.length === 1 ? 'USE THIS DOC AS BRIEF' : `USE ALL ${ready.length} DOCS AS BRIEF`;
+}
+
+function saveUploadedBrief() {
+  const ready = uploadedDocs.filter(d => d.text !== null && d.text.length > 0);
+  if (!ready.length) return;
+  brief = ready.length === 1
+    ? ready[0].text
+    : ready.map((d, i) => `--- DOCUMENT ${i + 1}: ${d.name} ---\n${d.text}`).join('\n\n');
+  showBriefConfirm(`${ready.length} doc${ready.length > 1 ? 's' : ''} loaded — ${brief.length.toLocaleString()} chars`);
+}
+
+function saveBrief() {
+  brief = document.getElementById('briefInput').value.trim();
+  if (!brief) return;
+  showBriefConfirm(`Brief saved — ${brief.length} chars`);
+  const btn = document.querySelector('.brief-save');
+  btn.textContent = '✓ SAVED';
+  setTimeout(() => btn.textContent = 'SAVE BRIEF', 1500);
+}
+
+function showBriefConfirm(msg) {
+  const el = document.getElementById('briefConfirm');
+  document.getElementById('briefConfirmText').textContent = msg;
+  el.style.display = 'flex';
+}
+
+function clearBrief() {
+  brief = '';
+  uploadedDocs = [];
+  document.getElementById('briefInput').value = '';
+  document.getElementById('briefConfirm').style.display = 'none';
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('uploadSaveBtn').style.display = 'none';
+  document.getElementById('uploadedFilesList').innerHTML = '';
+  document.getElementById('briefFile').value = '';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function useStarter(el) {
+  document.getElementById('mainInput').value = el.innerText.replace(/^.+\n/, '').trim();
+  document.getElementById('welcome').style.display = 'none';
+}
+
+async function sendMessage(overrideText, overrideMode) {
+  const input = document.getElementById('mainInput');
+  const text = overrideText || input.value.trim();
+  const mode = overrideMode || currentMode;
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('sendBtn').disabled = true;
+
+  addUserMessage(text, mode);
+
+  // Build messages array for API
+  const userContent = brief
+    ? `[BRIEF CONTEXT: ${brief}]\n\n${text}`
+    : text;
+
+  sessionMessages.push({ role: "user", content: userContent });
+
+  const typing = addTyping();
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: currentModel,
+        max_tokens: 1000,
+        system: systemPrompts[mode] + `\n\n${getDialInstruction()}`,
+        messages: sessionMessages
+      })
+    });
+
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || "Something went wrong. Try again.";
+
+    typing.remove();
+    sessionMessages.push({ role: "assistant", content: reply });
+    addAIMessage(reply, mode);
+  } catch(e) {
+    typing.remove();
+    addAIMessage("Connection error. Please try again.", mode);
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('sendBtn').textContent = modeLabels[currentMode].toUpperCase() + ' →';
+}
+
+function toggleRerun(wrapperId) {
+  const menu = document.getElementById(`rerunmenu-${wrapperId.replace('rerun-', '')}`);
+  const btn = document.querySelector(`#${wrapperId} .mode-tag-btn`);
+  const isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.rerun-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.mode-tag-btn.open').forEach(b => b.classList.remove('open'));
+  if (!isOpen) {
+    menu.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+function rerunWithMode(msgId, optionEl) {
+  const mode = optionEl.dataset.mode;
+  const wrap = document.getElementById(`rerun-${msgId}`);
+  const promptText = wrap.closest('.message').dataset.promptText;
+
+  // Close the menu
+  document.getElementById(`rerunmenu-${msgId}`).classList.remove('open');
+
+  sendMessage(promptText, mode);
+}
+
+// Close rerun dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.mode-tag-wrap')) {
+    document.querySelectorAll('.rerun-menu.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+function applyDial(direction) {
+  if (direction === 'weirder' && dialLevel < 10) dialLevel++;
+  if (direction === 'simpler' && dialLevel > 1) dialLevel--;
+  updateDialUI();
+
+  // If there's a conversation going, send a redialing message
+  const lastAiMsg = [...sessionMessages].reverse().find(m => m.role === 'assistant');
+  if (lastAiMsg) {
+    const dialPrompt = direction === 'weirder'
+      ? `Redial your last response up to creativity level ${dialLevel}/10 — make it weirder, more unexpected, more avant-garde.`
+      : `Redial your last response down to creativity level ${dialLevel}/10 — make it simpler, more distilled, more essential.`;
+    sendMessage(dialPrompt, currentMode);
+  }
+}
+
+function addUserMessage(text, mode) {
+  const msgs = document.getElementById('messages');
+  const msgId = 'umsg-' + (++messageCount);
+  const div = document.createElement('div');
+  div.className = 'message user';
+  div.dataset.promptText = text;
+
+  const dropdownOptions = Object.entries(modeLabels).map(([key, label]) =>
+    `<div class="rerun-option ${key === mode ? 'current' : ''}" data-mode="${key}" onclick="rerunWithMode('${msgId}', this)">${modeIcons[key]} ${label}</div>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="msg-label">
+      YOU —
+      <span class="mode-tag-wrap" id="rerun-${msgId}">
+        <span class="mode-tag-btn" onclick="toggleRerun('rerun-${msgId}')">${modeIcons[mode]} ${modeLabels[mode]} <span class="caret">▾</span></span>
+        <div class="rerun-menu" id="rerunmenu-${msgId}">
+          <div class="rerun-menu-label">Rerun as...</div>
+          ${dropdownOptions}
+        </div>
+      </span>
+    </div>
+    <div class="msg-bubble">${escapeHtml(text)}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMessage(text, mode) {
+  const msgs = document.getElementById('messages');
+  const id = 'msg-' + (++messageCount);
+  const div = document.createElement('div');
+  div.className = 'message ai';
+
+  const formattedText = formatAIText(text, mode);
+
+  div.innerHTML = `
+    <div class="msg-label">YES, AND</div>
+    <div class="msg-bubble ${modeColors[mode]}" id="${id}">
+      ${formattedText}
+    </div>
+    <div class="msg-actions">
+      <button class="like-btn" onclick="likeIdea('${id}', this)">♥ LIKE THIS</button>
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function formatAIText(text, mode) {
+  if (mode === 'burst') {
+    // Format numbered list as grid
+    let html = '';
+    const lines = text.split('\n');
+    let inGrid = false;
+    let gridItems = [];
+
+    for (const line of lines) {
+      const numbered = line.match(/^(\d+)\.\s+(.+)/);
+      if (numbered) {
+        gridItems.push({ num: numbered[1], text: numbered[2] });
+      } else {
+        if (gridItems.length > 0) {
+          html += '<div class="quantity-list">';
+          gridItems.forEach(item => {
+            html += `<div class="quantity-item" onclick="continueFromBurst(this)">
+              <span class="quantity-num">${item.num}</span>
+              <span>${escapeHtml(item.text)}</span>
+            </div>`;
+          });
+          html += '</div>';
+          gridItems = [];
+        }
+        if (line.trim()) html += `<p>${escapeHtml(line)}</p>`;
+      }
+    }
+    if (gridItems.length > 0) {
+      html += '<div class="quantity-list">';
+      gridItems.forEach(item => {
+        html += `<div class="quantity-item" onclick="continueFromBurst(this)">
+          <span class="quantity-num">${item.num}</span>
+          <span>${escapeHtml(item.text)}</span>
+        </div>`;
+      });
+      html += '</div>';
+    }
+    return html;
+  }
+
+  // Default: look for A) B) C) forks
+  const parts = text.split(/(?=\bA\)|\bB\)|\bC\))/);
+
+  if (parts.length > 1) {
+    let mainText = parts[0];
+    let forksHtml = '<div class="forks">';
+    for (let i = 1; i < parts.length; i++) {
+      const letter = parts[i][0];
+      const forkText = parts[i].slice(2).trim();
+      forksHtml += `<div class="fork" onclick="continueFork(this)">
+        <span class="fork-letter">${letter}</span>
+        <span>${escapeHtml(forkText)}</span>
+      </div>`;
+    }
+    forksHtml += '</div>';
+    return `<p>${escapeHtml(mainText).replace(/\n\n/g, '</p><p>')}</p>${forksHtml}`;
+  }
+
+  return `<p>${escapeHtml(text).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
+}
+
+function continueFork(el) {
+  const text = el.querySelector('span:last-child').textContent;
+  document.getElementById('mainInput').value = `Let's go with: ${text}`;
+  document.getElementById('mainInput').focus();
+}
+
+function continueFromBurst(el) {
+  const text = el.querySelector('span:last-child').textContent;
+  const prevMode = currentMode;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    if (b.dataset.mode === 'yes-and') { b.click(); }
+  });
+  sendMessage(`Let's develop this one: ${text}`, 'yes-and');
+}
+
+function likeIdea(id, btn) {
+  const bubble = document.getElementById(id);
+  if (!bubble) return;
+
+  if (btn.classList.contains('liked')) {
+    btn.classList.remove('liked');
+    btn.textContent = '♥ LIKE THIS';
+    likedIdeas = likedIdeas.filter(i => i.id !== id);
+  } else {
+    btn.classList.add('liked');
+    btn.textContent = '♥ LIKED';
+    const textContent = bubble.innerText.slice(0, 200) + (bubble.innerText.length > 200 ? '...' : '');
+    likedIdeas.push({ id, text: textContent, mode: currentMode });
+  }
+
+  updateLikesUI();
+}
+
+function updateLikesUI() {
+  document.getElementById('likesCounter').textContent = `♥ ${likedIdeas.length} LIKED`;
+  const panel = document.getElementById('likedPanel');
+
+  if (likedIdeas.length === 0) {
+    panel.innerHTML = '<div class="liked-empty">Ideas you ♥ will appear here for quick reference.</div>';
+    return;
+  }
+
+  panel.innerHTML = likedIdeas.map((item, i) =>
+    `<div class="liked-item" onclick="scrollToLiked('${item.id}')">
+      <strong style="font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6">${modeLabels[item.mode] || item.mode}</strong><br>
+      ${escapeHtml(item.text.slice(0, 120))}${item.text.length > 120 ? '…' : ''}
+    </div>`
+  ).join('');
+}
+
+function scrollToLiked(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showLikesModal() {
+  if (likedIdeas.length === 0) return;
+  document.getElementById('modalTitle').textContent = '♥ LIKED IDEAS';
+  document.getElementById('modalBody').innerHTML = likedIdeas.map((item, i) => `
+    <div style="margin-bottom:16px; padding:16px; border:1px solid var(--border); background:var(--cream)">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">${modeLabels[item.mode] || item.mode}</div>
+      <div style="font-size:12px;line-height:1.7">${escapeHtml(item.text)}</div>
+    </div>
+  `).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function showExport() {
+  const lines = ['YES, AND — SESSION EXPORT', '='.repeat(50), ''];
+
+  if (brief) {
+    lines.push('BRIEF:', brief, '');
+    lines.push('='.repeat(50), '');
+  }
+
+  sessionMessages.forEach((msg, i) => {
+    if (msg.role === 'user') {
+      lines.push(`YOU:`, msg.content.replace(/^\[BRIEF CONTEXT:.+?\]\n\n/, ''), '');
+    } else {
+      lines.push('YES, AND:', msg.content, '');
+    }
+    lines.push('-'.repeat(40), '');
+  });
+
+  if (likedIdeas.length > 0) {
+    lines.push('='.repeat(50));
+    lines.push('LIKED IDEAS:');
+    likedIdeas.forEach((item, i) => {
+      lines.push(`${i+1}. [${modeLabels[item.mode] || item.mode}]`, item.text, '');
+    });
+  }
+
+  const content = lines.join('\n');
+
+  document.getElementById('modalTitle').textContent = 'SESSION EXPORT';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="export-content">${escapeHtml(content)}</div>
+    <button class="copy-export" onclick="copyExport(\`${btoa(encodeURIComponent(content))}\`)">COPY TO CLIPBOARD</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function copyExport(encoded) {
+  const text = decodeURIComponent(atob(encoded));
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-export');
+    btn.textContent = '✓ COPIED!';
+    setTimeout(() => btn.textContent = 'COPY TO CLIPBOARD', 2000);
+  });
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+function addTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.innerHTML = `
+    <div class="msg-label">YES, AND</div>
+    <div class="typing">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Init
+updateDialUI();
+
+const ALL_STARTERS = [
+  "What if the ad only runs when it's raining?",
+  "A campaign that rewards people for ignoring it",
+  "The brand only speaks through other people's complaints",
+  "What if silence was the product benefit?",
+  "The product disappears from shelves for one week a year",
+  "A billboard that only makes sense if you've seen the last one",
+  "What if the brand admitted it wasn't for everyone?",
+  "The campaign is entirely written by people who hate the brand",
+  "What if buying the product came with a restriction?",
+  "An ad that gets better the more times you see it",
+  "The brand speaks only in questions, never answers",
+  "What if the packaging was the entire campaign?",
+  "A product launch with no visuals — only sound",
+  "The brand gives its biggest competitor a compliment",
+  "What if the ad was set 100 years in the future?",
+  "A campaign where the audience writes the ending",
+  "The brand goes completely dark for 30 days",
+  "What if the product only existed on one day a year?",
+  "An influencer campaign with zero influencers",
+  "The brand apologizes for something it never did",
+  "What if the brief was written by the customer, not the client?",
+  "A campaign that only works if strangers talk to each other",
+  "The ad is designed to be fast-forwarded",
+  "What if the logo was the worst part of the brand?",
+  "A loyalty program where the reward is less product",
+  "The brand speaks only to people who already said no",
+  "What if the campaign started with the worst-case scenario?",
+  "An OOH campaign that only appears at 3am",
+  "The product demo is performed by someone who's never used it",
+  "What if the tagline changed every single day?"
+];
+
+function renderStarters() {
+  const pool = [...ALL_STARTERS];
+  // Shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const four = pool.slice(0, 4);
+  const container = document.getElementById('starterPrompts');
+  container.innerHTML = four.map(text => `
+    <div class="starter" onclick="useStarter(this)">
+      <strong>Example</strong>${text}
+    </div>
+  `).join('');
+}
+
+renderStarters();
+</script>
+</body>
+</html>
